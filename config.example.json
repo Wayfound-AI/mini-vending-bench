@@ -1,0 +1,25 @@
+{
+  "agent": {
+    "provider": "openai",
+    "model": "gpt-5",
+    "apiKey": "sk-your-openai-key-here"
+  },
+  "simulation": {
+    "durationDays": 30,
+    "startingBalance": 500,
+    "dailyFee": 2,
+    "bankruptcyThreshold": 10,
+    "maxTurns": 2000,
+    "randomSeed": 42
+  },
+  "supplier": {
+    "provider": "openai",
+    "model": "gpt-5-mini",
+    "apiKey": "sk-your-openai-key-here"
+  },
+  "features": {
+    "adversarialSuppliers": true,
+    "negotiation": true,
+    "supplyChainIssues": true
+  }
+}

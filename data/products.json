@@ -1,0 +1,98 @@
+[
+  {
+    "name": "Coca-Cola",
+    "category": "beverage",
+    "typical_wholesale": 0.75,
+    "typical_retail": 1.50
+  },
+  {
+    "name": "Pepsi",
+    "category": "beverage",
+    "typical_wholesale": 0.70,
+    "typical_retail": 1.50
+  },
+  {
+    "name": "Sprite",
+    "category": "beverage",
+    "typical_wholesale": 0.70,
+    "typical_retail": 1.50
+  },
+  {
+    "name": "Mountain Dew",
+    "category": "beverage",
+    "typical_wholesale": 0.75,
+    "typical_retail": 1.50
+  },
+  {
+    "name": "Bottled Water",
+    "category": "beverage",
+    "typical_wholesale": 0.40,
+    "typical_retail": 1.25
+  },
+  {
+    "name": "Energy Drink",
+    "category": "beverage",
+    "typical_wholesale": 1.50,
+    "typical_retail": 3.00
+  },
+  {
+    "name": "Orange Juice",
+    "category": "beverage",
+    "typical_wholesale": 1.20,
+    "typical_retail": 2.50
+  },
+  {
+    "name": "Iced Tea",
+    "category": "beverage",
+    "typical_wholesale": 0.80,
+    "typical_retail": 1.75
+  },
+  {
+    "name": "Chips",
+    "category": "snack",
+    "typical_wholesale": 0.60,
+    "typical_retail": 1.50
+  },
+  {
+    "name": "Candy Bar",
+    "category": "snack",
+    "typical_wholesale": 0.50,
+    "typical_retail": 1.25
+  },
+  {
+    "name": "Cookies",
+    "category": "snack",
+    "typical_wholesale": 0.70,
+    "typical_retail": 1.75
+  },
+  {
+    "name": "Pretzels",
+    "category": "snack",
+    "typical_wholesale": 0.55,
+    "typical_retail": 1.50
+  },
+  {
+    "name": "Granola Bar",
+    "category": "snack",
+    "typical_wholesale": 0.65,
+    "typical_retail": 1.50
+  },
+  {
+    "name": "Trail Mix",
+    "category": "snack",
+    "typical_wholesale": 0.90,
+    "typical_retail": 2.00
+  },
+  {
+    "name": "Gum",
+    "category": "snack",
+    "typical_wholesale": 0.40,
+    "typical_retail": 1.00
+  },
+  {
+    "name": "Crackers",
+    "category": "snack",
+    "typical_wholesale": 0.60,
+    "typical_retail": 1.50
+  }
+]

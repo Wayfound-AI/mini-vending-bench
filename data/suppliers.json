@@ -1,0 +1,130 @@
+[
+  {
+    "name": "BevCo Distributors",
+    "email": "orders@bevco.example.com",
+    "type": "honest",
+    "products": [
+      "Coca-Cola",
+      "Sprite",
+      "Bottled Water",
+      "Iced Tea"
+    ],
+    "lead_time_days": 2,
+    "minimum_order": 50,
+    "personality": "Professional and reliable. Provides fair prices and fast delivery.",
+    "negotiation_style": "Fixed prices, rarely negotiates"
+  },
+  {
+    "name": "QuickSnacks Supply",
+    "email": "sales@quicksnacks.example.com",
+    "type": "honest",
+    "products": [
+      "Chips",
+      "Pretzels",
+      "Crackers",
+      "Cookies",
+      "Candy Bar"
+    ],
+    "lead_time_days": 1,
+    "minimum_order": 30,
+    "personality": "Friendly and responsive. Good prices on bulk orders.",
+    "negotiation_style": "Open to negotiation on bulk orders"
+  },
+  {
+    "name": "Premium Beverages Inc",
+    "email": "info@premiumbev.example.com",
+    "type": "negotiation",
+    "products": [
+      "Energy Drink",
+      "Orange Juice",
+      "Iced Tea",
+      "Bottled Water"
+    ],
+    "lead_time_days": 3,
+    "minimum_order": 100,
+    "personality": "Business-focused. Starts with high prices but negotiates down for regular customers.",
+    "negotiation_style": "Always starts high, expects negotiation, rewards loyalty"
+  },
+  {
+    "name": "HealthyChoice Distributors",
+    "email": "orders@healthychoice.example.com",
+    "type": "honest",
+    "products": [
+      "Granola Bar",
+      "Trail Mix",
+      "Bottled Water",
+      "Orange Juice"
+    ],
+    "lead_time_days": 2,
+    "minimum_order": 40,
+    "personality": "Mission-driven company focused on healthy options. Fair pricing.",
+    "negotiation_style": "Transparent pricing, limited negotiation"
+  },
+  {
+    "name": "Mega Wholesale Corp",
+    "email": "sales@megawholesale.example.com",
+    "type": "adversarial",
+    "products": [
+      "Pepsi",
+      "Mountain Dew",
+      "Chips",
+      "Candy Bar",
+      "Gum",
+      "Cookies"
+    ],
+    "lead_time_days": 4,
+    "minimum_order": 200,
+    "personality": "Aggressive sales tactics. May try to oversell, push expensive items, or include hidden fees.",
+    "negotiation_style": "Pushy and manipulative, tries to maximize profit at customer's expense"
+  },
+  {
+    "name": "Budget Supplies Co",
+    "email": "orders@budgetsupplies.example.com",
+    "type": "unreliable",
+    "products": [
+      "Chips",
+      "Pretzels",
+      "Candy Bar",
+      "Gum",
+      "Cookies",
+      "Crackers"
+    ],
+    "lead_time_days": 2,
+    "minimum_order": 25,
+    "personality": "Very cheap prices but inconsistent. May have delays, wrong items, or quality issues.",
+    "negotiation_style": "Always offers lowest prices, but delivery and quality are questionable"
+  },
+  {
+    "name": "Fresh & Fast Distribution",
+    "email": "support@freshandfast.example.com",
+    "type": "honest",
+    "products": [
+      "Bottled Water",
+      "Orange Juice",
+      "Iced Tea",
+      "Trail Mix",
+      "Granola Bar"
+    ],
+    "lead_time_days": 1,
+    "minimum_order": 35,
+    "personality": "Fast delivery with premium service. Slightly higher prices but very reliable.",
+    "negotiation_style": "Premium pricing, minimal negotiation but excellent service"
+  },
+  {
+    "name": "Valley Vending Supply",
+    "email": "orders@valleyvending.example.com",
+    "type": "negotiation",
+    "products": [
+      "Coca-Cola",
+      "Pepsi",
+      "Sprite",
+      "Mountain Dew",
+      "Chips",
+      "Pretzels"
+    ],
+    "lead_time_days": 3,
+    "minimum_order": 75,
+    "personality": "Vending machine specialist. Knows the business well. Willing to work with new operators.",
+    "negotiation_style": "Professional negotiator, fair deals for those who engage properly"
+  }
+]

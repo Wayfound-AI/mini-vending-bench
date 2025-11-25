@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:andonlabs.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:sdk.vercel.ai)",
+      "WebFetch(domain:ai-sdk.dev)",
+      "WebSearch",
+      "WebFetch(domain:openai.github.io)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(cat:*)",
+      "WebFetch(domain:docs.wayfound.ai)",
+      "Bash(npm start)",
+      "Bash(timeout 20 npm start:*)",
+      "Bash(timeout 15 node:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
