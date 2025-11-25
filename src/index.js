@@ -369,6 +369,17 @@ async function main() {
         day: currentState.simulation.current_day,
       });
 
+      // Print end-of-day summary after agent completes their actions
+      const endOfDayState = loadState(runOutputDir);
+      consoleLogger.section(`📊 END OF DAY ${endOfDayState.simulation.current_day}`);
+      console.log(`  💰 Balance: $${endOfDayState.finances.balance.toFixed(2)}`);
+      console.log(`  📦 Inventory in Machine: ${endOfDayState.vending_machine.inventory.reduce((sum, slot) => sum + slot.quantity, 0)} units`);
+      console.log(`  🏪 Inventory in Storage: ${endOfDayState.storage.inventory.reduce((sum, item) => sum + item.quantity, 0)} units`);
+      console.log(`  📈 Total Revenue: $${endOfDayState.finances.total_revenue.toFixed(2)}`);
+      console.log(`  📉 Total Expenses: $${endOfDayState.finances.total_expenses.toFixed(2)}`);
+      console.log(`  📊 Net Profit: $${(endOfDayState.finances.total_revenue - endOfDayState.finances.total_expenses).toFixed(2)}`);
+      console.log();
+
       // Advance to next day after agent completes turn
       const stateAfterTurn = loadState(runOutputDir);
       console.log(
