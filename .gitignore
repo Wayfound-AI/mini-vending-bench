@@ -6,6 +6,8 @@ yarn.lock
 # Configuration (contains API keys)
 config.json
 
+.claude/
+
 # Run outputs
 run_outputs/
 

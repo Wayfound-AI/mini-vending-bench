@@ -13,7 +13,8 @@
       "WebFetch(domain:docs.wayfound.ai)",
       "Bash(npm start)",
       "Bash(timeout 20 npm start:*)",
-      "Bash(timeout 15 node:*)"
+      "Bash(timeout 15 node:*)",
+      "Bash(open:*)"
     ],
     "deny": [],
     "ask": []

@@ -234,9 +234,11 @@ async function main() {
     let currentState = loadState(runOutputDir);
     console.log(`[DEBUG] Current day: ${currentState.simulation.current_day}`);
 
-    // Process daily events at the START of each day (before agent acts)
+    // Process daily setup events at the START of each day (before agent acts)
     const isFirstTurnOfDay =
       currentState.last_day_processed !== currentState.simulation.current_day;
+
+    let deliveriesReceivedToday = 0;
 
     if (isFirstTurnOfDay) {
       const day = currentState.simulation.current_day;
@@ -253,10 +255,6 @@ async function main() {
       // Update weather
       currentState.simulation.weather = updateWeather(currentState);
 
-      let dayUnitsSold = 0;
-      let dayRevenue = 0;
-      let deliveriesReceived = 0;
-
       // Apply daily fee (location rent/maintenance)
       const dailyFee = currentState.simulation.daily_fee || 0;
       if (dailyFee > 0 && day > 1) {
@@ -267,61 +265,17 @@ async function main() {
       // Process deliveries (orders that have arrived)
       if (day > 1) {
         const deliveryResults = processDeliveries(currentState);
-        deliveriesReceived = deliveryResults.length;
-        for (const result of deliveryResults) {
-          consoleLogger.event(result.message);
+        deliveriesReceivedToday = deliveryResults.length;
+        if (deliveryResults.length > 0) {
+          for (const result of deliveryResults) {
+            consoleLogger.event(result.message);
+          }
         }
-
-        // Simulate customer purchases
-        const purchaseResults = simulateCustomerPurchases(
-          currentState,
-          products
-        );
-        dayUnitsSold = purchaseResults.units_sold;
-        dayRevenue = purchaseResults.revenue;
-
-        if (purchaseResults.units_sold > 0) {
-          consoleLogger.event(
-            `Customers purchased ${
-              purchaseResults.units_sold
-            } units for $${purchaseResults.revenue.toFixed(2)}`
-          );
-        }
-
-        // Collect cash from machine if there's any
-        if (currentState.vending_machine.cash_in_machine > 0) {
-          const cashCollected = currentState.vending_machine.cash_in_machine;
-          addTransaction(
-            currentState,
-            "revenue",
-            cashCollected,
-            `Collected cash from vending machine on day ${day}`
-          );
-          currentState.vending_machine.cash_in_machine = 0;
-          consoleLogger.event(
-            `Collected $${cashCollected.toFixed(2)} from vending machine`
-          );
-        }
-
-        // Log daily summary to file only (not console during the day)
-        const summary = {
-          day,
-          balance: currentState.finances.balance,
-          units_sold: dayUnitsSold,
-          revenue: dayRevenue,
-          deliveries_received: deliveriesReceived,
-          weather: currentState.simulation.weather,
-          inventory_count: currentState.vending_machine.inventory.reduce(
-            (sum, slot) => sum + slot.quantity,
-            0
-          ),
-        };
-
-        fileLogger.logDailySummary(day, summary);
       }
 
-      // Mark this day as processed
+      // Mark this day as processed and store delivery count
       currentState.last_day_processed = day;
+      currentState.deliveries_received_today = deliveriesReceivedToday;
       saveState(runOutputDir, currentState);
     }
 
@@ -369,7 +323,65 @@ async function main() {
         day: currentState.simulation.current_day,
       });
 
-      // Print end-of-day summary after agent completes their actions
+      // After agent acts, simulate customer purchases and collect cash
+      const stateAfterAgent = loadState(runOutputDir);
+      const day = stateAfterAgent.simulation.current_day;
+
+      let dayUnitsSold = 0;
+      let dayRevenue = 0;
+
+      if (day > 1) {
+        // Simulate customer purchases (after agent has restocked)
+        const purchaseResults = simulateCustomerPurchases(
+          stateAfterAgent,
+          products
+        );
+        dayUnitsSold = purchaseResults.units_sold;
+        dayRevenue = purchaseResults.revenue;
+
+        if (purchaseResults.units_sold > 0) {
+          consoleLogger.event(
+            `Customers purchased ${
+              purchaseResults.units_sold
+            } units for $${purchaseResults.revenue.toFixed(2)}`
+          );
+        }
+
+        // Collect cash from machine if there's any
+        if (stateAfterAgent.vending_machine.cash_in_machine > 0) {
+          const cashCollected = stateAfterAgent.vending_machine.cash_in_machine;
+          addTransaction(
+            stateAfterAgent,
+            "revenue",
+            cashCollected,
+            `Collected cash from vending machine on day ${day}`
+          );
+          stateAfterAgent.vending_machine.cash_in_machine = 0;
+          consoleLogger.event(
+            `Collected $${cashCollected.toFixed(2)} from vending machine`
+          );
+        }
+
+        saveState(runOutputDir, stateAfterAgent);
+
+        // Log daily summary to file
+        const summary = {
+          day,
+          balance: stateAfterAgent.finances.balance,
+          units_sold: dayUnitsSold,
+          revenue: dayRevenue,
+          deliveries_received: stateAfterAgent.deliveries_received_today || 0,
+          weather: stateAfterAgent.simulation.weather,
+          inventory_count: stateAfterAgent.vending_machine.inventory.reduce(
+            (sum, slot) => sum + slot.quantity,
+            0
+          ),
+        };
+
+        fileLogger.logDailySummary(day, summary);
+      }
+
+      // Print end-of-day summary after all day activities complete
       const endOfDayState = loadState(runOutputDir);
       consoleLogger.section(`📊 END OF DAY ${endOfDayState.simulation.current_day}`);
       console.log(`  💰 Balance: $${endOfDayState.finances.balance.toFixed(2)}`);
