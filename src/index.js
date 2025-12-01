@@ -4,10 +4,7 @@ import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { Agent, run, user, assistant, MCPServerStreamableHttp } from "@openai/agents";
-import { aisdk } from "@openai/agents-extensions";
 import { openai } from "@ai-sdk/openai";
-import { anthropic } from "@ai-sdk/anthropic";
-import { google } from "@ai-sdk/google";
 import { loadConfig } from "./utils/config-loader.js";
 import {
   initializeState,
@@ -43,36 +40,19 @@ const __dirname = dirname(__filename);
 
 /**
  * Get Vercel AI SDK model (for supplier responses)
+ * Only OpenAI models are supported
  */
-function getVercelModel(providerConfig) {
-  const { provider, model, apiKey } = providerConfig;
-
-  switch (provider.toLowerCase()) {
-    case "openai":
-      return openai(model, { apiKey });
-    case "anthropic":
-      return anthropic(model, { apiKey });
-    case "google":
-      return google(model, { apiKey });
-    default:
-      throw new Error(`Unsupported provider: ${provider}`);
-  }
+function getVercelModel(config) {
+  const { model, apiKey } = config;
+  return openai(model, { apiKey });
 }
 
 /**
- * Get agent model (wrapped with aisdk for OpenAI Agents SDK)
- * OpenAI models use native support, others use aisdk wrapper
+ * Get agent model for OpenAI Agents SDK
+ * Only OpenAI models are supported
  */
-function getAgentModel(providerConfig) {
-  const { provider, model } = providerConfig;
-
-  // OpenAI has native support in the agents SDK - don't wrap it
-  if (provider.toLowerCase() === "openai") {
-    return model; // Just pass the model name as a string
-  }
-
-  // Other providers need the aisdk wrapper
-  return aisdk(getVercelModel(providerConfig));
+function getAgentModel(config) {
+  return config.model; // Just pass the model name as a string
 }
 
 /**
@@ -177,12 +157,10 @@ async function main() {
     products
   );
 
-  // Set API key for native OpenAI support if using OpenAI
-  if (config.agent.provider.toLowerCase() === "openai") {
-    process.env.OPENAI_API_KEY = config.agent.apiKey;
-  }
+  // Set API key for OpenAI Agents SDK
+  process.env.OPENAI_API_KEY = config.agent.apiKey;
 
-  // Create agent model (wrapped for OpenAI Agents SDK)
+  // Create agent model
   const agentModel = getAgentModel(config.agent);
 
   // Build agent instructions

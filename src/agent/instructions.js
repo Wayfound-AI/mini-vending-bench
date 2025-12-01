@@ -111,7 +111,7 @@ export function buildAgentInstructions(config) {
         .join('\n');
   } else if (config.supervisor?.mcpServer) {
     supervisorSection = '\n\nSUPERVISOR AVAILABLE:\n' +
-      `Supervisor Agent ID: ${config.supervisor.mcpServer.supervisorAgentId}\n` +
+      `Supervisor Agent ID: ${config.supervisor.mcpServer.supervisorAgentId}\n\n` +
       config.supervisor.mcpServer.description;
   }
 

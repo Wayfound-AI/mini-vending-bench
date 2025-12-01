@@ -20,9 +20,9 @@ const SupervisorSchema = z.object({
 );
 
 // Zod schema for configuration validation
+// Only OpenAI models are supported
 const ConfigSchema = z.object({
   agent: z.object({
-    provider: z.string(),
     model: z.string(),
     apiKey: z.string().min(1, 'Agent API key is required'),
   }),
@@ -35,7 +35,6 @@ const ConfigSchema = z.object({
     randomSeed: z.number().int().optional(),
   }),
   supplier: z.object({
-    provider: z.string(),
     model: z.string(),
     apiKey: z.string().min(1, 'Supplier API key is required'),
   }),

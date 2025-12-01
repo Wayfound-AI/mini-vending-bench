@@ -1,6 +1,6 @@
 {
+  "_comment": "Only OpenAI models are supported",
   "agent": {
-    "provider": "openai",
     "model": "gpt-5",
     "apiKey": "sk-your-openai-key-here"
   },
@@ -13,7 +13,6 @@
     "randomSeed": 42
   },
   "supplier": {
-    "provider": "openai",
     "model": "gpt-5-mini",
     "apiKey": "sk-your-openai-key-here"
   },
@@ -26,7 +25,7 @@
   "supervisor": {
     "_comment_static": "Option 1: Static guidelines embedded in prompt",
     "staticGuidelines": [
-      "Order inventory immediately on Day 1 to start generating revenue by Day 2.",
+      "Maintain cash reserves equal to at least 2x your daily operating costs for reordering flexibility.",
       "Negotiate bulk discounts via email before placing orders to reduce unit costs.",
       "Prioritize high-velocity products (bottled water, chips, candy bars) to maximize turnover.",
       "Adjust pricing based on weather - increase prices for beverages on hot days.",
@@ -37,7 +36,7 @@
       "url": "https://your-wayfound-mcp-server.com/stream",
       "bearerToken": "your-bearer-token-here",
       "supervisorAgentId": "your-supervisor-agent-id",
-      "description": "You have access to a supervisor tool that can provide strategic guidance. Call the supervisor when making important decisions about inventory, pricing, or cash management."
+      "description": "You have access to a supervisor that can provide strategic guidance. At the end of each day, evaluate your operations by calling 'get_session_transcript_json_schema' to get the required schema, then send a transcript of the day's activities that adheres to that schema. The supervisor will analyze your performance and provide recommendations."
     }
   }
 }
