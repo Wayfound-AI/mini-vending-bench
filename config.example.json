@@ -32,8 +32,8 @@
       "Focus on bank balance growth in the final week - avoid tying up cash in excess inventory."
     ],
     "_comment_mcp": "Option 2: MCP server (comment out staticGuidelines above and uncomment below)",
-    "_mcpServer": {
-      "url": "https://your-wayfound-mcp-server.com/stream",
+    "mcpServer": {
+      "url": "https://app.wayfound.ai/mcp",
       "bearerToken": "your-bearer-token-here",
       "supervisorAgentId": "your-supervisor-agent-id",
       "description": "You have access to a supervisor that can provide strategic guidance. At the end of each day, evaluate your operations by calling 'get_session_transcript_json_schema' to get the required schema, then send a transcript of the day's activities that adheres to that schema. The supervisor will analyze your performance and provide recommendations."
