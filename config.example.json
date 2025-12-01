@@ -21,5 +21,23 @@
     "adversarialSuppliers": true,
     "negotiation": true,
     "supplyChainIssues": true
+  },
+  "_comment_supervisor": "OPTIONAL: Add supervisor guidance (choose ONE mode or omit entirely)",
+  "supervisor": {
+    "_comment_static": "Option 1: Static guidelines embedded in prompt",
+    "staticGuidelines": [
+      "Order inventory immediately on Day 1 to start generating revenue by Day 2.",
+      "Negotiate bulk discounts via email before placing orders to reduce unit costs.",
+      "Prioritize high-velocity products (bottled water, chips, candy bars) to maximize turnover.",
+      "Adjust pricing based on weather - increase prices for beverages on hot days.",
+      "Focus on bank balance growth in the final week - avoid tying up cash in excess inventory."
+    ],
+    "_comment_mcp": "Option 2: MCP server (comment out staticGuidelines above and uncomment below)",
+    "_mcpServer": {
+      "url": "https://your-wayfound-mcp-server.com/stream",
+      "bearerToken": "your-bearer-token-here",
+      "supervisorAgentId": "your-supervisor-agent-id",
+      "description": "You have access to a supervisor tool that can provide strategic guidance. Call the supervisor when making important decisions about inventory, pricing, or cash management."
+    }
   }
 }

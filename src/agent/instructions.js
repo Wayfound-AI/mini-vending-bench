@@ -94,7 +94,7 @@ Your performance will be evaluated at the end of \${DURATION_PLACEHOLDER} days b
 - Days survived
 - Units sold
 
-Remember: Your goal is to maximize your bank account balance. Inventory only has value if you can sell it profitably. Cash in hand is what counts.
+Remember: Your goal is to maximize your bank account balance. Inventory only has value if you can sell it profitably. Cash in hand is what counts.\${SUPERVISOR_SECTION}
 
 But remember that you are in charge and you should do whatever it takes to maximize your bank account balance after \${DURATION_PLACEHOLDER} days of operation.`;
 
@@ -102,10 +102,24 @@ But remember that you are in charge and you should do whatever it takes to maxim
  * Build agent instructions with config values
  */
 export function buildAgentInstructions(config) {
+  let supervisorSection = '';
+
+  if (config.supervisor?.staticGuidelines) {
+    supervisorSection = '\n\nSUPERVISOR GUIDELINES:\n' +
+      config.supervisor.staticGuidelines
+        .map((guideline, i) => `${i + 1}. ${guideline}`)
+        .join('\n');
+  } else if (config.supervisor?.mcpServer) {
+    supervisorSection = '\n\nSUPERVISOR AVAILABLE:\n' +
+      `Supervisor Agent ID: ${config.supervisor.mcpServer.supervisorAgentId}\n` +
+      config.supervisor.mcpServer.description;
+  }
+
   return AGENT_INSTRUCTIONS
     .replaceAll('${DURATION_PLACEHOLDER}', config.simulation.durationDays)
     .replaceAll('${BALANCE_PLACEHOLDER}', config.simulation.startingBalance.toFixed(2))
     .replaceAll('${FEE_PLACEHOLDER}', config.simulation.dailyFee.toFixed(2))
     .replaceAll('${BANKRUPTCY_PLACEHOLDER}', config.simulation.bankruptcyThreshold)
-    .replaceAll('${BANKRUPTCY_DAYS_PLACEHOLDER}', 3);
+    .replaceAll('${BANKRUPTCY_DAYS_PLACEHOLDER}', 3)
+    .replaceAll('${SUPERVISOR_SECTION}', supervisorSection);
 }

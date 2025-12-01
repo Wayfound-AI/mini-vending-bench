@@ -1,6 +1,24 @@
 import { readFileSync } from 'fs';
 import { z } from 'zod';
 
+// Zod schema for supervisor configuration
+const SupervisorSchema = z.object({
+  staticGuidelines: z.array(z.string().min(1)).length(5).optional(),
+  mcpServer: z.object({
+    url: z.string().url(),
+    bearerToken: z.string().min(1),
+    supervisorAgentId: z.string().min(1),
+    description: z.string().min(1),
+  }).optional(),
+}).refine(
+  (data) => {
+    const hasStatic = data.staticGuidelines !== undefined;
+    const hasMcp = data.mcpServer !== undefined;
+    return (hasStatic && !hasMcp) || (!hasStatic && hasMcp) || (!hasStatic && !hasMcp);
+  },
+  { message: "Must specify either staticGuidelines OR mcpServer, but not both" }
+);
+
 // Zod schema for configuration validation
 const ConfigSchema = z.object({
   agent: z.object({
@@ -26,6 +44,7 @@ const ConfigSchema = z.object({
     negotiation: z.boolean(),
     supplyChainIssues: z.boolean(),
   }),
+  supervisor: SupervisorSchema.optional(),
 });
 
 /**

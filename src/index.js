@@ -3,7 +3,7 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { Agent, run, user, assistant } from "@openai/agents";
+import { Agent, run, user, assistant, MCPServerStreamableHttp } from "@openai/agents";
 import { aisdk } from "@openai/agents-extensions";
 import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -141,6 +141,7 @@ function calculateFinalScore(state, products, config) {
  */
 async function main() {
   const consoleLogger = new ConsoleLogger(true);
+  let mcpServer = null;
 
   consoleLogger.section("Mini Vending Bench - AI Agent Benchmark");
 
@@ -187,6 +188,29 @@ async function main() {
   // Build agent instructions
   const instructions = buildAgentInstructions(config);
 
+  // Initialize MCP server if configured
+  if (config.supervisor?.mcpServer) {
+    consoleLogger.info("Initializing MCP supervisor server...");
+
+    mcpServer = new MCPServerStreamableHttp({
+      url: config.supervisor.mcpServer.url,
+      requestInit: {
+        headers: {
+          'Authorization': `Bearer ${config.supervisor.mcpServer.bearerToken}`
+        }
+      }
+    });
+
+    try {
+      await mcpServer.connect();
+      consoleLogger.success("MCP supervisor server connected");
+    } catch (error) {
+      // CRITICAL: If MCP server is specified and connection fails, stop the program
+      consoleLogger.error("Failed to connect to MCP supervisor server", error);
+      throw new Error(`MCP connection failed: ${error.message}`);
+    }
+  }
+
   // Initialize tools (removed wait_for_next_day - day advancement happens in main loop)
   const tools = [
     getBalance(runOutputDir),
@@ -217,6 +241,7 @@ async function main() {
     model: agentModel,
     instructions,
     tools,
+    ...(mcpServer ? { mcpServers: [mcpServer] } : {}),
   });
 
   consoleLogger.section("Starting Benchmark");
@@ -465,6 +490,16 @@ async function main() {
   consoleLogger.success(
     `\nBenchmark complete! Results saved to: ${runOutputDir}`
   );
+
+  // Cleanup MCP server connection
+  if (mcpServer) {
+    try {
+      await mcpServer.close();
+      consoleLogger.info("MCP supervisor server connection closed");
+    } catch (error) {
+      consoleLogger.error("Error closing MCP server", error);
+    }
+  }
 }
 
 // Run
