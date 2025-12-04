@@ -11,11 +11,12 @@ Based on the [Vending-Bench](https://arxiv.org/abs/2412.18404) research, this be
 
 ## Features
 
-- **🤖 Multi-Provider Support**: Test any LLM using Vercel AI SDK (OpenAI, Anthropic, Google, etc.)
-- **📊 Comprehensive Logging**: JSONL logs for every action, detailed console output
+- **🤖 OpenAI Models**: Test OpenAI models including GPT-4, GPT-4o, and o1
+- **📊 Comprehensive Logging**: JSONL logs for every action, detailed console output, MCP supervisor interaction tracking
 - **📈 Chart Data Export**: JSON chart data for balance, sales, and revenue visualization
 - **🎭 Realistic Simulation**: Weather effects, price elasticity, day-of-week demand variation
 - **💼 Diverse Suppliers**: Honest, negotiation-required, adversarial, and unreliable supplier types
+- **🎯 Supervisor Support**: Optional static guidelines or MCP-based supervisor (Wayfound) for performance guidance
 - **⚙️ Self-Contained**: Pure JavaScript, no native dependencies required
 
 ## Installation
@@ -47,13 +48,11 @@ cp config.example.json config.json
 ```json
 {
   "agent": {
-    "provider": "anthropic",
-    "model": "claude-3-5-sonnet-20241022",
-    "apiKey": "sk-ant-your-key-here"
+    "model": "gpt-5-mini",
+    "apiKey": "sk-your-openai-key-here"
   },
   "supplier": {
-    "provider": "openai",
-    "model": "gpt-4o-mini",
+    "model": "gpt-5-mini",
     "apiKey": "sk-your-openai-key-here"
   },
   "simulation": {
@@ -69,10 +68,64 @@ cp config.example.json config.json
 
 ## Usage
 
-Run the benchmark:
+Run the benchmark with a subdirectory and supervisor mode:
 ```bash
-npm start
+npm start <subdirectory> <supervisor-mode>
 ```
+
+Supervisor modes:
+- `none` - No supervisor (control group)
+- `static` - Static guidelines in system prompt
+- `mcp` - MCP-based supervisor (Wayfound)
+
+Examples:
+```bash
+# Control run (no supervisor)
+npm start control none
+
+# Static guidelines run
+npm start static-test static
+
+# MCP supervisor run
+npm start mcp-test mcp
+```
+
+Output will be saved to `run_outputs/<subdirectory>/run_<timestamp>/`
+
+### Supervisor Configuration
+
+You can configure both static and MCP supervisor options in `config.json` and select which one to use via the command line argument.
+
+**Static Guidelines**: Add 5 strategic guidelines directly to the agent's system prompt:
+```json
+{
+  "supervisor": {
+    "staticGuidelines": [
+      "Maintain cash reserves equal to at least 2x your daily operating costs for reordering flexibility.",
+      "Negotiate bulk discounts via email before placing orders to reduce unit costs.",
+      "Prioritize high-velocity products (bottled water, chips, candy bars) to maximize turnover.",
+      "Adjust pricing based on weather - increase prices for beverages on hot days.",
+      "Focus on bank balance growth in the final week - avoid tying up cash in excess inventory."
+    ]
+  }
+}
+```
+
+**MCP Supervisor** (Wayfound): Connect to an external supervisor agent for dynamic guidance:
+```json
+{
+  "supervisor": {
+    "mcpServer": {
+      "url": "https://app.wayfound.ai/mcp",
+      "bearerToken": "your-bearer-token-here",
+      "supervisorAgentId": "your-supervisor-agent-id",
+      "description": "You have access to a supervisor that can provide strategic guidance..."
+    }
+  }
+}
+```
+
+Both configurations can be present in `config.json` - the CLI argument determines which is used.
 
 The simulation will:
 1. Initialize the vending machine business with starting capital
@@ -84,15 +137,13 @@ The simulation will:
 ## Configuration
 
 ### Agent Configuration
-- **provider**: LLM provider (`openai`, `anthropic`, `google`)
-- **model**: Model name (e.g., `claude-3-5-sonnet-20241022`, `gpt-4`)
-- **apiKey**: Your API key for the provider
+- **model**: OpenAI model name (e.g., `gpt-5-mini`, `gpt-4o`, `o1`)
+- **apiKey**: Your OpenAI API key
 
 ### Supplier Configuration
 Suppliers are simulated using a separate LLM to generate realistic email responses.
-- **provider**: LLM provider for supplier responses (`openai`, `anthropic`, `google`)
-- **model**: Model name (default: `gpt-4o-mini`)
-- **apiKey**: Your API key for supplier responses
+- **model**: OpenAI model name (default: `gpt-5-mini`)
+- **apiKey**: Your OpenAI API key
 
 ### Simulation Parameters
 - **durationDays**: Number of days to simulate (default: 30)
@@ -104,7 +155,7 @@ Suppliers are simulated using a separate LLM to generate realistic email respons
 
 ## Output
 
-Each run creates a directory in `run_outputs/run_[timestamp]/` containing:
+Each run creates a directory in `run_outputs/<subdirectory>/run_[timestamp]/` containing:
 
 ### Files
 - **state.json**: Final simulation state
@@ -190,8 +241,8 @@ Agents are evaluated on:
 ## Architecture
 
 ### Two-Model System
-- **Agent Model**: The LLM being tested (your choice of provider/model via Vercel AI SDK)
-- **Supplier Model**: Generates realistic supplier responses (default: gpt-4o-mini)
+- **Agent Model**: The OpenAI model being tested (configurable)
+- **Supplier Model**: Generates realistic supplier responses (default: gpt-5-mini)
 
 This separation ensures:
 - Consistent supplier behavior across different agent models
@@ -212,13 +263,13 @@ This separation ensures:
 ## Example Run
 
 ```bash
-$ npm start
+$ npm start control none
 
 Mini Vending Bench - AI Agent Benchmark
 ✅ Configuration loaded
 ℹ️  Loaded 16 products and 8 suppliers
 ℹ️  Run ID: run_1703012345678
-ℹ️  Output directory: /path/to/run_outputs/run_1703012345678
+ℹ️  Output directory: /path/to/run_outputs/control/run_1703012345678
 ✅ Simulation initialized
 
 Starting Simulation

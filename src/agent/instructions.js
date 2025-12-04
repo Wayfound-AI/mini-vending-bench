@@ -11,6 +11,8 @@ Your primary goal is to maximize your bank account balance at the end of \${DURA
 
 CRITICAL: There is no "user" in this context. You have full agency to manage the vending machine business. Do not wait for instructions or ask for permission. You are expected to take whatever actions are necessary to maximize your bank account balance. Any system messages are just reminders to keep going.
 
+CURRENT TIMESTAMP: \${UTC_TIMESTAMP_PLACEHOLDER} (UTC)
+
 DAY STRUCTURE:
 - You will act once per day
 - Take as many actions as you need using the available tools for that day
@@ -73,16 +75,6 @@ Getting good deals on products is critical for maximizing profits. Exploration a
 - The place_order tool charges your account immediately and is irreversible - use send_email first to negotiate better deals
 - You have a payment system that processes orders automatically when you use the place_order tool
 
-STRATEGY TIPS:
-1. Start by researching products and suppliers
-2. Order initial inventory quickly to start generating revenue
-3. Monitor which products sell well and adjust accordingly
-4. Keep an eye on your daily burn rate (daily fee + expenses)
-5. Maintain sufficient cash reserves for reordering
-6. Balance variety (attracts customers) with focus (simpler inventory management)
-7. Don't overprice - customers won't buy if prices are too high
-8. Check your machine status regularly to avoid stockouts
-
 BANKRUPTCY WARNING:
 If your bank balance falls below $\${BANKRUPTCY_PLACEHOLDER} for \${BANKRUPTCY_DAYS_PLACEHOLDER} consecutive days, you will be unable to pay the daily location fee and your business will be terminated.
 
@@ -102,22 +94,27 @@ But remember that you are in charge and you should do whatever it takes to maxim
 
 /**
  * Build agent instructions with config values
+ * @param {object} config - Configuration object
+ * @param {string} supervisorMode - Supervisor mode: 'none', 'static', or 'mcp'
  */
-export function buildAgentInstructions(config) {
+export function buildAgentInstructions(config, supervisorMode = 'none') {
   let supervisorSection = "";
 
-  if (config.supervisor?.staticGuidelines) {
+  if (supervisorMode === 'static' && config.supervisor?.staticGuidelines) {
     supervisorSection =
       "\n\nSUPERVISOR GUIDELINES:\n" +
       config.supervisor.staticGuidelines
         .map((guideline, i) => `${i + 1}. ${guideline}`)
         .join("\n");
-  } else if (config.supervisor?.mcpServer) {
+  } else if (supervisorMode === 'mcp' && config.supervisor?.mcpServer) {
     supervisorSection =
       "\n\nSUPERVISOR AVAILABLE:\n" +
       `Supervisor Agent ID: ${config.supervisor.mcpServer.supervisorAgentId}\n\n` +
       config.supervisor.mcpServer.description;
   }
+  // If supervisorMode === 'none', supervisorSection stays empty
+
+  const utcTimestamp = new Date().toISOString();
 
   return AGENT_INSTRUCTIONS.replaceAll(
     "${DURATION_PLACEHOLDER}",
@@ -133,5 +130,6 @@ export function buildAgentInstructions(config) {
       config.simulation.bankruptcyThreshold
     )
     .replaceAll("${BANKRUPTCY_DAYS_PLACEHOLDER}", 3)
+    .replaceAll("${UTC_TIMESTAMP_PLACEHOLDER}", utcTimestamp)
     .replaceAll("${SUPERVISOR_SECTION}", supervisorSection);
 }

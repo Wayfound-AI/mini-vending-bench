@@ -125,6 +125,30 @@ async function main() {
 
   consoleLogger.section("Mini Vending Bench - AI Agent Benchmark");
 
+  // Get required command line arguments
+  const subdirectory = process.argv[2];
+  const supervisorMode = process.argv[3];
+
+  if (!subdirectory || !supervisorMode) {
+    console.error("❌ Error: Both subdirectory and supervisor mode arguments are required");
+    console.error("   Usage: npm start <subdirectory> <supervisor-mode>");
+    console.error("   Supervisor modes: none | static | mcp");
+    console.error("");
+    console.error("   Examples:");
+    console.error("   npm start control none         # No supervisor");
+    console.error("   npm start static-test static   # Static guidelines");
+    console.error("   npm start mcp-test mcp         # MCP supervisor");
+    process.exit(1);
+  }
+
+  // Validate supervisor mode
+  const validModes = ['none', 'static', 'mcp'];
+  if (!validModes.includes(supervisorMode)) {
+    console.error(`❌ Error: Invalid supervisor mode '${supervisorMode}'`);
+    console.error(`   Must be one of: ${validModes.join(', ')}`);
+    process.exit(1);
+  }
+
   // Load configuration
   const config = loadConfig();
   consoleLogger.success("Configuration loaded");
@@ -135,11 +159,13 @@ async function main() {
     `Loaded ${products.length} products and ${suppliers.length} suppliers`
   );
 
-  // Create run directory
+  // Create run directory with subdirectory
   const runId = `run_${Date.now()}`;
-  const runOutputDir = join(process.cwd(), "run_outputs", runId);
+  const runOutputDir = join(process.cwd(), "run_outputs", subdirectory, runId);
   const fileLogger = new FileLogger(runOutputDir);
 
+  consoleLogger.info(`Subdirectory: ${subdirectory}`);
+  consoleLogger.info(`Supervisor mode: ${supervisorMode}`);
   consoleLogger.info(`Run ID: ${runId}`);
   consoleLogger.info(`Output directory: ${runOutputDir}`);
 
@@ -163,12 +189,24 @@ async function main() {
   // Create agent model
   const agentModel = getAgentModel(config.agent);
 
-  // Build agent instructions
-  const instructions = buildAgentInstructions(config);
+  // Validate supervisor configuration based on mode
+  if (supervisorMode === 'static' && !config.supervisor?.staticGuidelines) {
+    console.error("❌ Error: Static supervisor mode selected but no staticGuidelines found in config.json");
+    process.exit(1);
+  }
+  if (supervisorMode === 'mcp' && !config.supervisor?.mcpServer) {
+    console.error("❌ Error: MCP supervisor mode selected but no mcpServer configuration found in config.json");
+    process.exit(1);
+  }
 
-  // Initialize MCP server if configured
-  if (config.supervisor?.mcpServer) {
+  // Build agent instructions with supervisor mode
+  const instructions = buildAgentInstructions(config, supervisorMode);
+
+  // Initialize MCP server if MCP mode is selected
+  if (supervisorMode === 'mcp') {
     consoleLogger.info("Initializing MCP supervisor server...");
+    consoleLogger.info(`  URL: ${config.supervisor.mcpServer.url}`);
+    consoleLogger.info(`  Supervisor ID: ${config.supervisor.mcpServer.supervisorAgentId}`);
 
     mcpServer = new MCPServerStreamableHttp({
       url: config.supervisor.mcpServer.url,
@@ -185,6 +223,7 @@ async function main() {
     } catch (error) {
       // CRITICAL: If MCP server is specified and connection fails, stop the program
       consoleLogger.error("Failed to connect to MCP supervisor server", error);
+      consoleLogger.error(`  Error details: ${error.stack || error.message}`);
       throw new Error(`MCP connection failed: ${error.message}`);
     }
   }
@@ -280,6 +319,27 @@ async function main() {
       currentState.last_day_processed = day;
       currentState.deliveries_received_today = deliveriesReceivedToday;
       saveState(runOutputDir, currentState);
+
+      // Refresh MCP connection at start of each day to avoid cold start issues
+      if (mcpServer && supervisorMode === 'mcp') {
+        try {
+          await mcpServer.close();
+          await mcpServer.connect();
+
+          // Make a warmup call to wake up the Wayfound supervisor
+          // This prevents the 500 error on the first actual tool call
+          try {
+            const tools = await mcpServer.listTools();
+            consoleLogger.info(`🔄 Refreshed MCP connection (${tools.length} tools available)`);
+          } catch (warmupError) {
+            consoleLogger.info("🔄 Refreshed MCP connection for new day");
+            consoleLogger.warn("⚠️  MCP warmup call failed (first tool call may be slower)");
+          }
+        } catch (error) {
+          consoleLogger.warn("⚠️  MCP reconnect failed, will use existing connection");
+          consoleLogger.warn(`   ${error.message}`);
+        }
+      }
     }
 
     // Reload state after daily processing
@@ -300,17 +360,11 @@ async function main() {
       conversationHistory.push(user(prompt));
 
       consoleLogger.llmPrompt(prompt);
-      console.log(
-        `[DEBUG] About to call run() with ${conversationHistory.length} messages in history`
-      );
 
-      // Pass full conversation history - agent can see previous context
-      // Agent will take as many actions as it needs until it naturally completes
+      // Pass conversation history - SDK manages its own state internally
       const result = await run(agent, conversationHistory, {
         maxTurns: config.simulation.maxTurns,
       });
-
-      console.log(`[DEBUG] run() completed successfully`);
 
       // Log LLM response
       const response = result.finalOutput || "Agent completed";

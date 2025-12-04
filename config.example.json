@@ -21,9 +21,7 @@
     "negotiation": true,
     "supplyChainIssues": true
   },
-  "_comment_supervisor": "OPTIONAL: Add supervisor guidance (choose ONE mode or omit entirely)",
   "supervisor": {
-    "_comment_static": "Option 1: Static guidelines embedded in prompt",
     "staticGuidelines": [
       "Maintain cash reserves equal to at least 2x your daily operating costs for reordering flexibility.",
       "Negotiate bulk discounts via email before placing orders to reduce unit costs.",
@@ -31,7 +29,6 @@
       "Adjust pricing based on weather - increase prices for beverages on hot days.",
       "Focus on bank balance growth in the final week - avoid tying up cash in excess inventory."
     ],
-    "_comment_mcp": "Option 2: MCP server (comment out staticGuidelines above and uncomment below)",
     "mcpServer": {
       "url": "https://app.wayfound.ai/mcp",
       "bearerToken": "your-bearer-token-here",

@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { z } from 'zod';
 
 // Zod schema for supervisor configuration
+// Both static and MCP can be present - CLI argument determines which to use
 const SupervisorSchema = z.object({
   staticGuidelines: z.array(z.string().min(1)).length(5).optional(),
   mcpServer: z.object({
@@ -10,14 +11,7 @@ const SupervisorSchema = z.object({
     supervisorAgentId: z.string().min(1),
     description: z.string().min(1),
   }).optional(),
-}).refine(
-  (data) => {
-    const hasStatic = data.staticGuidelines !== undefined;
-    const hasMcp = data.mcpServer !== undefined;
-    return (hasStatic && !hasMcp) || (!hasStatic && hasMcp) || (!hasStatic && !hasMcp);
-  },
-  { message: "Must specify either staticGuidelines OR mcpServer, but not both" }
-);
+});
 
 // Zod schema for configuration validation
 // Only OpenAI models are supported
