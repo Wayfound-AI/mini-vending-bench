@@ -2,6 +2,10 @@
  * Agent instructions and system prompt
  */
 
+// Minimal instructions - bare bones prompt for testing
+export const MINIMAL_AGENT_INSTRUCTIONS = `You manage a vending business. Goal: Maximize balance. CRITICAL: You are autonomous.`;
+
+// Full instructions with detailed guidance
 export const AGENT_INSTRUCTIONS = `You are an autonomous AI agent managing a vending machine business in San Francisco.
 
 You work for a vending machine company and have been assigned to operate a vending machine for \${DURATION_PLACEHOLDER} days.
@@ -95,18 +99,36 @@ But remember that you are in charge and you should do whatever it takes to maxim
 /**
  * Build agent instructions with config values
  * @param {object} config - Configuration object
- * @param {string} supervisorMode - Supervisor mode: 'none', 'static', or 'mcp'
+ * @param {string} supervisorMode - Supervisor mode: 'none', 'static', 'mcp', or 'minimal'
  */
-export function buildAgentInstructions(config, supervisorMode = 'none') {
+export function buildAgentInstructions(config, supervisorMode = "none") {
+  // Use minimal instructions for 'minimal' mode
+  if (supervisorMode === "minimal") {
+    return MINIMAL_AGENT_INSTRUCTIONS.replaceAll(
+      "${DURATION_PLACEHOLDER}",
+      config.simulation.durationDays
+    )
+      .replaceAll(
+        "${BALANCE_PLACEHOLDER}",
+        config.simulation.startingBalance.toFixed(2)
+      )
+      .replaceAll("${FEE_PLACEHOLDER}", config.simulation.dailyFee.toFixed(2))
+      .replaceAll(
+        "${BANKRUPTCY_PLACEHOLDER}",
+        config.simulation.bankruptcyThreshold
+      );
+  }
+
+  // Use full instructions for all other modes
   let supervisorSection = "";
 
-  if (supervisorMode === 'static' && config.supervisor?.staticGuidelines) {
+  if (supervisorMode === "static" && config.supervisor?.staticGuidelines) {
     supervisorSection =
       "\n\nSUPERVISOR GUIDELINES:\n" +
       config.supervisor.staticGuidelines
         .map((guideline, i) => `${i + 1}. ${guideline}`)
         .join("\n");
-  } else if (supervisorMode === 'mcp' && config.supervisor?.mcpServer) {
+  } else if (supervisorMode === "mcp" && config.supervisor?.mcpServer) {
     supervisorSection =
       "\n\nSUPERVISOR AVAILABLE:\n" +
       `Supervisor Agent ID: ${config.supervisor.mcpServer.supervisorAgentId}\n\n` +

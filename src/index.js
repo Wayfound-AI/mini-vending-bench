@@ -132,17 +132,18 @@ async function main() {
   if (!subdirectory || !supervisorMode) {
     console.error("❌ Error: Both subdirectory and supervisor mode arguments are required");
     console.error("   Usage: npm start <subdirectory> <supervisor-mode>");
-    console.error("   Supervisor modes: none | static | mcp");
+    console.error("   Supervisor modes: none | static | mcp | minimal");
     console.error("");
     console.error("   Examples:");
-    console.error("   npm start control none         # No supervisor");
+    console.error("   npm start control none         # No supervisor (full instructions)");
     console.error("   npm start static-test static   # Static guidelines");
     console.error("   npm start mcp-test mcp         # MCP supervisor");
+    console.error("   npm start minimal-test minimal # Minimal bare-bones instructions");
     process.exit(1);
   }
 
   // Validate supervisor mode
-  const validModes = ['none', 'static', 'mcp'];
+  const validModes = ['none', 'static', 'mcp', 'minimal'];
   if (!validModes.includes(supervisorMode)) {
     console.error(`❌ Error: Invalid supervisor mode '${supervisorMode}'`);
     console.error(`   Must be one of: ${validModes.join(', ')}`);

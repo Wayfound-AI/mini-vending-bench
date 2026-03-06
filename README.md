@@ -2,7 +2,7 @@
 
 A JavaScript benchmark for testing long-term coherence and decision-making of AI agents through a simulated vending machine business.
 
-Based on the [Vending-Bench](https://arxiv.org/abs/2412.18404) research, this benchmark evaluates AI agents' ability to:
+Based on the [Vending-Bench](https://andonlabs.com/evals/vending-bench-2) research, this benchmark evaluates AI agents' ability to:
 - Manage finances and inventory over multiple days
 - Navigate supplier relationships (honest, negotiation-focused, adversarial, unreliable)
 - Make strategic pricing and product selection decisions
@@ -74,14 +74,18 @@ npm start <subdirectory> <supervisor-mode>
 ```
 
 Supervisor modes:
-- `none` - No supervisor (control group)
+- `none` - No supervisor (control group with full instructions)
 - `static` - Static guidelines in system prompt
 - `mcp` - MCP-based supervisor (Wayfound)
+- `minimal` - Bare-bones minimal instructions (no detailed guidance)
 
 Examples:
 ```bash
-# Control run (no supervisor)
+# Control run (no supervisor, full instructions)
 npm start control none
+
+# Minimal instructions run (bare bones prompt)
+npm start minimal-test minimal
 
 # Static guidelines run
 npm start static-test static
